@@ -13,8 +13,6 @@ class Utils(object):
         """
         return pbkdf2_sha512.encrypt(password)
 
-
-
     @staticmethod
     def check_hashed_password(password, hashed_password):
         """

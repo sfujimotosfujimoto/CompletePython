@@ -24,12 +24,46 @@ class User(object):
         :return: True is valid , False otherwise.
         """
 
-        user_data = Database.find_one("users", {"email": email}) # Password in sha512 -> pbkdf2_sha512
+        user_data = Database.find_one("users", {"email": email})  # Password in sha512 -> pbkdf2_sha512
         if user_data is None:
             # Tell the user that their email doesn't exist
-            raise UserErrors.UserNotExistsError("Your user does not exist")
+            raise UserErrors.UserNotExistsError("Your user does not exist!!")
         if not Utils.check_hashed_password(password, user_data['password']):
             # Tell the user that their password is wrong
-            raise UserErrors.IncorrectPasswordError("Your password was wrong")
+            raise UserErrors.IncorrectPasswordError("Your password was wrong!!")
         return True
 
+    @staticmethod
+    def register_user(email, password):
+        """
+        This method registers a usre using email and password.
+        the password already comes hashed as sha-512.
+        :param email: sha512-hashed password
+        :param password: sha-512 hashed password
+        :return: True if registered successfully, or False otherwise
+        """
+
+        user_data = Database.find_one("users", {"email": email})
+
+        if user_data is not None:
+            # Tell user they are already registered
+            pass
+
+        if not Utils.email_is_valid(email):
+            # Tell user that their email is not constructed properly
+            pass
+
+        User(email, Utils.hash_password(password)).save_to_db()
+
+        return True
+
+    def save_to_db(self):
+        Database.insert("users", self.json())
+
+    def json(self):
+        return {
+            "_id": self._id,
+            "email": self.email,
+            "password": self.password
+
+        }
